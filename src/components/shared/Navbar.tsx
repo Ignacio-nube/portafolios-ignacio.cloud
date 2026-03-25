@@ -27,7 +27,7 @@ const navItems = [
     bgColor: 'rgba(255, 255, 255, 0.03)',
     links: [
       { label: 'WhatsApp', href: '#contacto', ariaLabel: 'Contactar por WhatsApp' },
-      { label: 'Email', href: '#contacto', ariaLabel: 'Contactar por email' },
+      { label: 'ignacio@ignacio.cloud', href: 'mailto:ignacio@ignacio.cloud', ariaLabel: 'Enviar email' },
     ],
   },
 ];
