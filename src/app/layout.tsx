@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist_Mono, DM_Sans } from 'next/font/google';
 import './globals.css';
 import ClientProviders from '@/components/shared/ClientProviders';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -40,7 +41,9 @@ export default function RootLayout({
     >
       <body className="bg-[#080808] text-[#F5F5F5] antialiased min-h-screen">
         <ClientProviders />
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

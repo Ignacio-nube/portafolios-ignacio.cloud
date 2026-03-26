@@ -13,6 +13,7 @@ import {
   searchProjects,
   getCategoryCounts,
 } from '@/lib/projects';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ScrollFloat = dynamic(() => import('@/components/bits/ScrollFloat'), { ssr: false });
 
@@ -22,15 +23,7 @@ const PAGE_SIZE = 6;
 const PAGINATION_THRESHOLD = 20;
 const SEARCH_MIN_LENGTH = 2;
 
-const CATEGORY_LABELS: Record<string, string> = {
-  all: 'Todos',
-  saas: 'SaaS',
-  demo: 'Demo',
-  negocio: 'Negocio',
-  ia: 'IA',
-  app: 'App',
-  juego: 'Juego',
-};
+const CATEGORY_ORDER = ['all', 'saas', 'demo', 'negocio', 'ia', 'app', 'juego'];
 
 const CATEGORY_GRADIENT: Record<string, string> = {
   saas:    'from-[#0a2535] to-[#001520]',
@@ -50,27 +43,23 @@ const CATEGORY_TAG: Record<string, string> = {
   juego:   'bg-orange-950 text-orange-400 border-orange-800/30',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  produccion: 'En producción',
-  desarrollo: 'En desarrollo',
-  demo: 'Demo',
-};
-
 const BLUR_PLACEHOLDER =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 // ─── Shared sub-components ────────────────────────────────────────────────────
 
 function TagPill({ category }: { category: string }) {
+  const { t } = useLanguage();
   return (
     <span className={`font-mono text-[9px] px-2 py-0.5 rounded-full border ${CATEGORY_TAG[category] ?? ''}`}>
-      {CATEGORY_LABELS[category] ?? category}
+      {t.projects.categoryLabels[category] ?? category}
     </span>
   );
 }
 
 function StatusBadge({ status, badge }: { status: string; badge?: string | null }) {
-  const label = badge ?? STATUS_LABEL[status] ?? status;
+  const { t } = useLanguage();
+  const label = badge ?? t.projects.statusLabels[status] ?? status;
   const isLive = status === 'produccion';
   return (
     <span className={`inline-flex items-center gap-1.5 font-mono text-[10px] px-2 py-1 rounded-full border shrink-0 ${
@@ -135,6 +124,7 @@ function ProjectThumbnail({
 // ─── Card: Featured main (2/3 width) ─────────────────────────────────────────
 
 function FeaturedCard({ project }: { project: Project }) {
+  const { t } = useLanguage();
   return (
     <div className="h-full rounded-xl overflow-hidden border border-[#00E5FF]/20 bg-[#111111] flex flex-col group hover:border-[#00E5FF]/35 transition-colors duration-300">
       <div className="relative w-full h-48 overflow-hidden">
@@ -154,9 +144,9 @@ function FeaturedCard({ project }: { project: Project }) {
         <p className="text-[#666666] text-sm leading-relaxed line-clamp-2">{project.short_desc}</p>
         {project.stack.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-auto">
-            {project.stack.slice(0, 4).map((t) => (
-              <span key={t} className="font-mono text-[10px] border border-[#222222] text-[#555555] px-2 py-0.5 rounded">
-                {t}
+            {project.stack.slice(0, 4).map((tech) => (
+              <span key={tech} className="font-mono text-[10px] border border-[#222222] text-[#555555] px-2 py-0.5 rounded">
+                {tech}
               </span>
             ))}
           </div>
@@ -168,7 +158,7 @@ function FeaturedCard({ project }: { project: Project }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 font-mono text-xs bg-[#00E5FF] text-[#080808] px-4 py-2 rounded-lg font-bold hover:bg-[#00E5FF]/90 transition-colors"
           >
-            Ver demo <ExternalLink size={10} />
+            {t.projects.viewDemo} <ExternalLink size={10} />
           </a>
           {project.code_url && (
             <a
@@ -177,7 +167,7 @@ function FeaturedCard({ project }: { project: Project }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 font-mono text-xs border border-[#222222] text-[#555555] hover:text-[#888888] hover:border-[#444444] px-4 py-2 rounded-lg transition-colors"
             >
-              <Github size={10} /> Código
+              <Github size={10} /> {t.projects.code}
             </a>
           )}
         </div>
@@ -214,9 +204,9 @@ function FeaturedSideCard({ project }: { project: Project }) {
         <p className="text-[#555555] text-xs leading-relaxed line-clamp-3">{project.short_desc}</p>
         {project.stack.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto pt-1">
-            {project.stack.slice(0, 3).map((t) => (
-              <span key={t} className="font-mono text-[9px] border border-[#1e1e1e] text-[#444444] px-1.5 py-0.5 rounded">
-                {t}
+            {project.stack.slice(0, 3).map((tech) => (
+              <span key={tech} className="font-mono text-[9px] border border-[#1e1e1e] text-[#444444] px-1.5 py-0.5 rounded">
+                {tech}
               </span>
             ))}
           </div>
@@ -253,9 +243,9 @@ function MediumCard({ project }: { project: Project }) {
         <p className="text-[#555555] text-xs leading-relaxed line-clamp-2">{project.short_desc}</p>
         {project.stack.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto pt-1">
-            {project.stack.slice(0, 3).map((t) => (
-              <span key={t} className="font-mono text-[9px] border border-[#1e1e1e] text-[#444444] px-1.5 py-0.5 rounded">
-                {t}
+            {project.stack.slice(0, 3).map((tech) => (
+              <span key={tech} className="font-mono text-[9px] border border-[#1e1e1e] text-[#444444] px-1.5 py-0.5 rounded">
+                {tech}
               </span>
             ))}
             {project.stack.length > 3 && (
@@ -292,10 +282,11 @@ function CompactCard({ project }: { project: Project }) {
 // ─── Search results grid (flat, uniform) ─────────────────────────────────────
 
 function SearchGrid({ projects }: { projects: Project[] }) {
+  const { t } = useLanguage();
   if (projects.length === 0) {
     return (
       <p className="text-center text-[#444444] font-mono text-sm py-16">
-        Sin resultados. Probá con otro término.
+        {t.projects.noResults}
       </p>
     );
   }
@@ -362,6 +353,7 @@ function AllProjectsGrid({
   onLoadMore: () => void;
   onPageChange: (p: number) => void;
 }) {
+  const { t } = useLanguage();
   const usePagination = projects.length > PAGINATION_THRESHOLD;
   const totalPages = Math.ceil(projects.length / PAGE_SIZE);
 
@@ -374,12 +366,11 @@ function AllProjectsGrid({
   if (projects.length === 0) {
     return (
       <p className="text-center text-[#444444] font-mono text-sm py-16">
-        Sin proyectos en esta categoría.
+        {t.projects.noCategory}
       </p>
     );
   }
 
-  // Split: first 3 as medium cards, rest as compact
   const medium = visible.slice(0, 3);
   const compact = visible.slice(3);
 
@@ -438,7 +429,7 @@ function AllProjectsGrid({
             className="w-full flex items-center justify-center gap-2 font-mono text-xs text-[#444444] hover:text-[#888888] border border-[#1a1a1a] hover:border-[#2a2a2a] rounded-xl py-3 transition-all duration-200"
           >
             <ChevronDown size={13} />
-            <span>+ Ver {Math.min(remaining, PAGE_SIZE)} proyectos más</span>
+            <span>{t.projects.showMore(Math.min(remaining, PAGE_SIZE))}</span>
           </button>
         )
       )}
@@ -456,6 +447,7 @@ export default function Projects() {
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const { t } = useLanguage();
 
   const featured = getFeatured();
   const allProjects = getAllProjects();
@@ -464,7 +456,7 @@ export default function Projects() {
   const isSearching = searchQuery.length >= SEARCH_MIN_LENGTH;
 
   const filteredAll = isSearching
-    ? [] // not used when searching
+    ? []
     : activeCategory === 'all'
       ? allProjects.filter((p) => !p.archived)
       : allProjects.filter((p) => p.category === activeCategory && !p.archived);
@@ -505,14 +497,14 @@ export default function Projects() {
             animationDuration={1}
             stagger={0.025}
           >
-            Lo que construí
+            {t.projects.title}
           </ScrollFloat>
           <p className="text-[#555555] font-mono text-sm mb-10">
-            Proyectos reales para mercados reales.
+            {t.projects.subtitle}
           </p>
         </motion.div>
 
-        {/* Featured — always visible, animación manejada internamente */}
+        {/* Featured */}
         <FeaturedLayout projects={featured} isInView={isInView} />
 
         {/* Controls: category pills + search */}
@@ -524,7 +516,9 @@ export default function Projects() {
         >
           {/* Category pills con highlight deslizante (layoutId) */}
           <div className="flex flex-wrap gap-2">
-            {Object.entries(CATEGORY_LABELS).map(([key, label]) => {
+            {CATEGORY_ORDER.map((key) => {
+              const label = t.projects.categoryLabels[key];
+              if (!label) return null;
               const count = counts[key] ?? 0;
               if (key !== 'all' && count === 0) return null;
               const isActive = activeCategory === key && !isSearching;
@@ -570,7 +564,7 @@ export default function Projects() {
                   setPage(0);
                   setVisibleCount(PAGE_SIZE);
                 }}
-                placeholder="Buscar proyecto..."
+                placeholder={t.projects.searchPlaceholder}
                 className="w-full sm:w-52 font-mono text-xs bg-[#0d0d0d] border border-[#222222] text-[#cccccc] placeholder:text-[#333333] rounded-lg pl-8 pr-4 py-1.5 focus:outline-none focus:border-[#00E5FF]/40 transition-colors duration-200"
               />
             </div>

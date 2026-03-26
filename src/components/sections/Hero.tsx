@@ -2,19 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring, MotionValue } from 'motion/react';
-import { MessageCircle, ArrowDown } from 'lucide-react';
+import { MessageCircle, ArrowDown, Download } from 'lucide-react';
 import SplitText from '@/components/bits/SplitText';
+import { useLanguage } from '@/context/LanguageContext';
 
 const WA_NUMBER = process.env.NEXT_PUBLIC_WA_NUMBER ?? '5493816000000';
-const WA_MSG = encodeURIComponent('Hola Ignacio, vi tu portfolio y quiero hablar de mi proyecto.');
 
-const phrases = [
-  'Sistemas de reservas directas',
-  'Webs que generan clientes',
-  'Apps sin comisiones de Booking',
-];
-
-function TypingText() {
+function TypingText({ phrases }: { phrases: string[] }) {
   const [text, setText] = useState('');
   const phraseIdx = useRef(0);
   const charIdx = useRef(0);
@@ -22,6 +16,11 @@ function TypingText() {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
+    phraseIdx.current = 0;
+    charIdx.current = 0;
+    deleting.current = false;
+    setText('');
+
     const tick = () => {
       const phrase = phrases[phraseIdx.current];
       if (!deleting.current) {
@@ -47,7 +46,8 @@ function TypingText() {
     };
     timer.current = setTimeout(tick, 1000);
     return () => clearTimeout(timer.current);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phrases]);
 
   return (
     <span>
@@ -57,7 +57,7 @@ function TypingText() {
   );
 }
 
-function MockupCard({ y }: { y: MotionValue<number> }) {
+function MockupCard({ y, mockup }: { y: MotionValue<number>; mockup: { badge: string; sub: string; metric: string } }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
@@ -160,7 +160,7 @@ function MockupCard({ y }: { y: MotionValue<number> }) {
         <div className="absolute inset-0 bg-gradient-to-tr from-[#00E5FF]/3 via-transparent to-transparent pointer-events-none" />
       </div>
 
-      {/* Floating badge: sin comisiones */}
+      {/* Floating badge */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -169,9 +169,9 @@ function MockupCard({ y }: { y: MotionValue<number> }) {
       >
         <div className="flex items-center gap-2 mb-0.5">
           <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          <span className="font-mono text-[10px] text-[#666666] uppercase tracking-wider">Reserva directa</span>
+          <span className="font-mono text-[10px] text-[#666666] uppercase tracking-wider">{mockup.badge}</span>
         </div>
-        <p className="font-mono text-sm font-bold text-[#F5F5F5]">Sin comisiones</p>
+        <p className="font-mono text-sm font-bold text-[#F5F5F5]">{mockup.sub}</p>
       </motion.div>
 
       {/* Floating badge: reservas */}
@@ -181,7 +181,7 @@ function MockupCard({ y }: { y: MotionValue<number> }) {
         transition={{ delay: 1.5, duration: 0.5 }}
         className="absolute bottom-[28%] left-[4%] bg-[#111111] border border-[#1e1e1e] rounded-xl px-4 py-3 shadow-xl pointer-events-none"
       >
-        <p className="font-mono text-[10px] text-[#555555] mb-1">Reservas este mes</p>
+        <p className="font-mono text-[10px] text-[#555555] mb-1">{mockup.metric}</p>
         <p className="font-mono text-2xl font-bold text-[#00E5FF]">+34</p>
       </motion.div>
     </motion.div>
@@ -193,14 +193,14 @@ function scrollToProjects() {
 }
 
 export default function Hero() {
+  const { t } = useLanguage();
   const { scrollYProgress } = useScroll();
 
-  // Parallax mockup: sube suavemente al scrollear
   const rawMockupY = useTransform(scrollYProgress, [0, 0.4], [0, -60]);
   const mockupY = useSpring(rawMockupY, { stiffness: 80, damping: 25 });
-
-  // Fade-out del contenido left al scrollear
   const heroOpacity = useTransform(scrollYProgress, [0, 0.22], [1, 0]);
+
+  const waMsg = encodeURIComponent(t.contact.waMsg);
 
   return (
     <>
@@ -229,7 +229,7 @@ export default function Hero() {
             >
               <span className="inline-flex items-center gap-2 font-mono text-xs border border-green-500/30 bg-green-500/5 text-green-400 px-4 py-2 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Disponible — respondo en menos de 24hs
+                {t.hero.badge}
               </span>
             </motion.div>
 
@@ -251,7 +251,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.55 }}
               className="text-xl md:text-2xl font-medium text-[#888888] mb-3 min-h-[2em]"
             >
-              <TypingText />
+              <TypingText phrases={t.hero.typingTexts} />
             </motion.h2>
 
             {/* Subtitle */}
@@ -261,7 +261,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.65 }}
               className="font-mono text-sm text-[#555555] mb-10"
             >
-              Técnico en Programación · Tucumán, Argentina
+              {t.hero.subtitle}
             </motion.p>
 
             {/* CTAs */}
@@ -272,13 +272,13 @@ export default function Hero() {
               className="flex flex-wrap gap-4"
             >
               <a
-                href={`https://wa.me/${WA_NUMBER}?text=${WA_MSG}`}
+                href={`https://wa.me/${WA_NUMBER}?text=${waMsg}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 font-mono text-sm bg-[#00E5FF] text-[#080808] hover:bg-[#00E5FF]/90 px-7 py-3 rounded-lg font-bold transition-all duration-200"
               >
                 <MessageCircle size={15} />
-                Hablar de tu proyecto →
+                {t.hero.cta}
               </a>
 
               <button
@@ -286,13 +286,22 @@ export default function Hero() {
                 className="inline-flex items-center gap-2 font-mono text-sm border border-[#222222] text-[#888888] hover:text-[#F5F5F5] hover:border-[#444444] bg-transparent px-7 py-3 rounded-lg transition-all duration-200"
               >
                 <ArrowDown size={14} />
-                Ver proyectos
+                {t.hero.ctaProjects}
               </button>
+
+              <a
+                href="/Juan_Ignacio_Marquez_CV.pdf"
+                download="Ignacio-Marquez-CV.pdf"
+                className="inline-flex items-center gap-2 font-mono text-sm border border-[#222222] text-[#888888] hover:text-[#F5F5F5] hover:border-[#444444] px-7 py-3 rounded-lg transition-all duration-200"
+              >
+                <Download size={14} />
+                {t.hero.ctaCV}
+              </a>
             </motion.div>
           </motion.div>
 
           {/* RIGHT: 3D mockup con parallax */}
-          <MockupCard y={mockupY} />
+          <MockupCard y={mockupY} mockup={t.hero.mockup} />
         </div>
       </section>
     </>

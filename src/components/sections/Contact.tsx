@@ -4,13 +4,16 @@ import { useRef } from 'react';
 import { motion, useInView } from 'motion/react';
 import { MessageCircle, Mail } from 'lucide-react';
 import BlurText from '@/components/bits/BlurText';
+import { useLanguage } from '@/context/LanguageContext';
 
 const WA_NUMBER = process.env.NEXT_PUBLIC_WA_NUMBER ?? '5493816000000';
-const WA_MSG = encodeURIComponent('Hola Ignacio, vi tu portfolio y quiero hablar de mi proyecto.');
 
 export default function Contact() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const { t } = useLanguage();
+
+  const waHref = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t.contact.waMsg)}`;
 
   return (
     <section id="contacto" className="relative z-[1] py-24 md:py-32 px-6">
@@ -24,10 +27,10 @@ export default function Contact() {
           className="mb-2"
         >
           <h2 className="text-3xl md:text-5xl font-bold text-[#F5F5F5] mb-2">
-            ¿Tenés un proyecto?
+            {t.contact.title}
           </h2>
           <p className="text-2xl md:text-3xl font-bold text-[#00E5FF] mb-5">
-            <BlurText text="Hablemos hoy." delay={90} animateBy="words" />
+            <BlurText text={t.contact.subtitle} delay={90} animateBy="words" />
           </p>
         </motion.div>
 
@@ -37,13 +40,13 @@ export default function Contact() {
           transition={{ duration: 0.5, delay: 0.35 }}
           className="font-mono text-sm text-[#555555] mb-14"
         >
-          No cobro consulta inicial.
+          {t.contact.note}
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
           {/* WhatsApp — entra desde la izquierda */}
           <motion.a
-            href={`https://wa.me/${WA_NUMBER}?text=${WA_MSG}`}
+            href={waHref}
             target="_blank"
             rel="noopener noreferrer"
             initial={{ x: -50, opacity: 0 }}
@@ -56,16 +59,16 @@ export default function Contact() {
             </div>
             <div>
               <p className="font-bold text-[#F5F5F5] text-lg mb-1">WhatsApp</p>
-              <p className="font-mono text-sm text-[#555555]">Respuesta inmediata</p>
+              <p className="font-mono text-sm text-[#555555]">{t.contact.waSub}</p>
             </div>
             <span className="font-mono text-sm text-green-400 group-hover:text-green-300 transition-colors duration-200">
-              Escribirme →
+              {t.contact.waCta}
             </span>
           </motion.a>
 
           {/* Email — entra desde la derecha */}
           <motion.a
-            href="mailto:nacho@ignacio.cloud"
+            href="mailto:ignacio@ignacio.cloud"
             initial={{ x: 50, opacity: 0 }}
             animate={isInView ? { x: 0, opacity: 1 } : {}}
             transition={{ type: 'spring', stiffness: 70, damping: 18, delay: 0.2 }}
@@ -76,10 +79,10 @@ export default function Contact() {
             </div>
             <div>
               <p className="font-bold text-[#F5F5F5] text-lg mb-1">Email</p>
-              <p className="font-mono text-sm text-[#555555]">nacho@ignacio.cloud</p>
+              <p className="font-mono text-sm text-[#555555]">ignacio@ignacio.cloud</p>
             </div>
             <span className="font-mono text-sm text-[#00E5FF]/60 group-hover:text-[#00E5FF] transition-colors duration-200">
-              Enviar email →
+              {t.contact.emailCta}
             </span>
           </motion.a>
         </div>

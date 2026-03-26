@@ -3,13 +3,14 @@
 import { useRef, useEffect, useState, memo } from 'react';
 import { motion, useInView } from 'motion/react';
 import dynamic from 'next/dynamic';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ScrollVelocity = dynamic(() => import('@/components/bits/ScrollVelocity'), { ssr: false });
 
-const metrics = [
-  { value: 4, suffix: '', label: 'productos en producción' },
-  { value: 2, suffix: '', label: 'destinos turísticos cubiertos' },
-  { value: 100, suffix: '%', label: 'proyectos con código real' },
+const METRIC_VALUES = [
+  { value: 4, suffix: '' },
+  { value: 2, suffix: '' },
+  { value: 100, suffix: '%' },
 ];
 
 const techStack = [
@@ -52,14 +53,15 @@ const CountUp = memo(function CountUp({
 export default function MetricsBar() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const { t } = useLanguage();
 
   return (
     <section className="relative z-[1] py-14 px-6 border-y border-[#111111] bg-[#080808]/60">
       <div className="max-w-6xl mx-auto" ref={ref}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 sm:divide-x sm:divide-[#111111]">
-          {metrics.map((m, i) => (
+          {METRIC_VALUES.map((m, i) => (
             <motion.div
-              key={m.label}
+              key={i}
               initial={{ opacity: 0, y: 16 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: i * 0.12 }}
@@ -68,7 +70,7 @@ export default function MetricsBar() {
               <span className="text-4xl md:text-5xl font-bold text-[#00E5FF] mb-2 tabular-nums">
                 <CountUp value={m.value} suffix={m.suffix} isInView={isInView} />
               </span>
-              <span className="font-mono text-sm text-[#555555]">{m.label}</span>
+              <span className="font-mono text-sm text-[#555555]">{t.metrics.labels[i]}</span>
             </motion.div>
           ))}
         </div>

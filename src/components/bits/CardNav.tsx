@@ -24,6 +24,7 @@ export interface CardNavProps {
   onCtaClick?: () => void;
   ctaLabel?: string;
   scrolled?: boolean;
+  extraButtons?: React.ReactNode;
 }
 
 const CardNav: React.FC<CardNavProps> = ({
@@ -33,6 +34,7 @@ const CardNav: React.FC<CardNavProps> = ({
   onCtaClick,
   ctaLabel = 'Ver demos',
   scrolled = false,
+  extraButtons,
 }) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -207,6 +209,18 @@ const CardNav: React.FC<CardNavProps> = ({
               ignacio.cloud
             </span>
           </motion.div>
+
+          {/* Extra buttons (language toggle, CV, etc.) */}
+          {extraButtons && (
+            <motion.div
+              className="hidden md:flex items-center gap-2"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
+            >
+              {extraButtons}
+            </motion.div>
+          )}
 
           {/* CTA */}
           <motion.button
