@@ -210,29 +210,22 @@ const CardNav: React.FC<CardNavProps> = ({
             </span>
           </motion.div>
 
-          {/* Extra buttons (language toggle, CV, etc.) */}
-          {extraButtons && (
-            <motion.div
-              className="hidden md:flex items-center gap-2"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
-            >
-              {extraButtons}
-            </motion.div>
-          )}
-
-          {/* CTA */}
-          <motion.button
-            type="button"
-            onClick={onCtaClick}
-            className="hidden md:inline-flex rounded-[calc(0.75rem-0.35rem)] px-4 items-center h-[calc(100%-12px)] font-mono text-xs font-medium cursor-pointer transition-all duration-200 border border-[#00E5FF]/40 text-[#00E5FF] hover:bg-[#00E5FF]/10 bg-transparent"
+          {/* Right side: extra buttons + CTA grouped together */}
+          <motion.div
+            className="hidden md:flex items-center gap-2"
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
           >
-            {ctaLabel}
-          </motion.button>
+            {extraButtons}
+            <button
+              type="button"
+              onClick={onCtaClick}
+              className="rounded-[calc(0.75rem-0.35rem)] px-4 flex items-center h-[calc(60px-12px)] font-mono text-xs font-medium cursor-pointer transition-all duration-200 border border-[#00E5FF]/40 text-[#00E5FF] hover:bg-[#00E5FF]/10 bg-transparent"
+            >
+              {ctaLabel}
+            </button>
+          </motion.div>
         </div>
 
         {/* Cards */}
